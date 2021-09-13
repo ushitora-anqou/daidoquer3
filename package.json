@@ -4,6 +4,8 @@
   "description": "Yet another Discord bot for speaking text messages aloud and playing music.",
   "main": "index.js",
   "scripts": {
+    "build": "webpack",
+    "watch": "webpack -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": "git+https://github.com/ushitora-anqou/daidoquer3.git",
@@ -15,5 +17,19 @@
   "bugs": {
     "url": "https://github.com/ushitora-anqou/daidoquer3/issues"
   },
-  "homepage": "https://github.com/ushitora-anqou/daidoquer3#readme"
+  "homepage": "https://github.com/ushitora-anqou/daidoquer3#readme",
+  "dependencies": {
+    "discord.js": "^13.1.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "prettier": "^2.4.0",
+    "ts-loader": "^9.2.5",
+    "typescript": "^4.4.3",
+    "webpack": "^5.52.1",
+    "webpack-cli": "^4.8.0"
+  }
 }
