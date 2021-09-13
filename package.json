@@ -1,0 +1,19 @@
+{
+  "name": "daidoquer3",
+  "version": "1.0.0",
+  "description": "Yet another Discord bot for speaking text messages aloud and playing music.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "git+https://github.com/ushitora-anqou/daidoquer3.git",
+  "keywords": [
+    "daidoquer3"
+  ],
+  "author": "ushitora-anqou",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ushitora-anqou/daidoquer3/issues"
+  },
+  "homepage": "https://github.com/ushitora-anqou/daidoquer3#readme"
+}
