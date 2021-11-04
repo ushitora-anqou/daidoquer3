@@ -27,6 +27,7 @@
     "bufferutil": "^4.0.3",
     "discord-api-types": "^0.23.1",
     "discord.js": "^13.1.0",
+    "erlpack": "discord/erlpack",
     "tweetnacl": "^1.0.3",
     "utf-8-validate": "^5.0.5",
     "zlib-sync": "^0.1.7"
