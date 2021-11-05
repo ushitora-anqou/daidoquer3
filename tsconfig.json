@@ -21,7 +21,8 @@
 
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "moduleResolution": "node"
   },
   "exclude": [
     "node_modules/**/*"
