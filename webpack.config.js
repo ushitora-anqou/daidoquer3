@@ -1,18 +1,14 @@
-module.exports = {
-  mode: "production",
-
-  entry: "./src/main.ts",
-
-  module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        use: "ts-loader",
-      },
-    ],
-  },
-  resolve: {
-    extensions: [".ts", ".js"],
-  },
-  target: ["web", "es6"],
+export const mode = "production";
+export const entry = "./src/main.ts";
+export const module = {
+  rules: [
+    {
+      test: /\.ts$/,
+      use: "ts-loader",
+    },
+  ],
 };
+export const resolve = {
+  extensions: [".ts", ".js"],
+};
+export const target = ["web", "es6"];
