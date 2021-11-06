@@ -2,7 +2,10 @@ import ytdl from 'ytdl-core';
 import { Track, TrackData } from './track';
 import { Readable } from 'stream';
 
-export class Yt2Track extends Track {
+/**
+ * Track implements for Youtube.
+ */
+export class YtTrack extends Track {
 	constructor({ url, title, thumbnailUrl, onStart, onFinish, onError }: TrackData) {
 		super({url, title, thumbnailUrl, onStart, onFinish, onError});
 	}
@@ -15,7 +18,7 @@ export class Yt2Track extends Track {
 		});
 	};
 
-	public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>): Promise<Yt2Track>{
+	public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>): Promise<YtTrack>{
 		let title: string | undefined;
 		let thumbnailUrl: string | undefined;		
 		await ytdl.getInfo(url)
@@ -23,7 +26,7 @@ export class Yt2Track extends Track {
                 title = info.videoDetails.title;
                 thumbnailUrl = info.videoDetails.thumbnails[0]?.url;
             })
-		return new Yt2Track({
+		return new YtTrack({
 			url,
 			title: title ? title : 'Undefined title',
 			thumbnailUrl: thumbnailUrl ? thumbnailUrl : 'Undefined',

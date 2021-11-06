@@ -6,7 +6,7 @@ import { Readable } from 'stream';
  */
 export interface TrackData {
 	url: string;
-	onStart: () => void;
+	onStart: (title: string) => void;
 	onFinish: () => void;
 	onError: (error: Error) => void;
 	title: string;
@@ -24,7 +24,7 @@ export interface TrackData {
  */
 export abstract class Track implements TrackData {
 	public readonly url: string;
-	public readonly onStart: () => void;
+	public readonly onStart: (title: string) => void;
 	public readonly onFinish: () => void;
 	public readonly onError: (error: Error) => void;
 	public readonly title: string;
@@ -60,9 +60,9 @@ export abstract class Track implements TrackData {
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		const noop = () => {};
 		const wrappedMethods = {
-			onStart() {
+			onStart(title: string) {
 				wrappedMethods.onStart = noop;
-				methods.onStart();
+				methods.onStart(title);
 			},
 			onFinish() {
 				wrappedMethods.onFinish = noop;

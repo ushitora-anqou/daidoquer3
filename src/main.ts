@@ -1,11 +1,11 @@
-import { Client, ClientOptions, Interaction, GuildMember, Snowflake, MessageEmbed } from 'discord.js';
+import { Client, ClientOptions, Interaction, GuildMember, Snowflake } from 'discord.js';
 import config from './config/config.json';
 import { MusicSubscription } from './music/subscription';
 import { AudioPlayerStatus, AudioResource, entersState, joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice';
 import { Track } from './music/track/track';
 import { generateDependencyReport } from '@discordjs/voice';
 import { Register } from './commands/register';
-import { Url2Track } from './music/url2track';
+import { Url2Enqueue } from './music/url2enqueue';
 
 console.log(generateDependencyReport());
 const options: ClientOptions = {
@@ -65,32 +65,19 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 		}
 
 		try {
-			// Attempt to create a Track from the user's video URL
-			const track = await Url2Track.fromUrl(url, {
-				onStart(){
-					interaction.followUp({ content: `再生中: **${track.title}**` }).catch(console.warn);
+			// Attempt to enqueue a Track from URL.
+			await Url2Enqueue.fromUrl(
+				subscription,
+				interaction,
+				url,
+				{
+					onStart(title: string){interaction.followUp({ content: `再生中: **${title}**` }).catch(console.warn);},
+					// eslint-disable-next-line @typescript-eslint/no-empty-function
+					onFinish(){},
+					onError(error) {
+						console.warn(error);
+						interaction.followUp({ content: `Error: ${error.message}`, ephemeral: true }).catch(console.warn);
 				},
-				// eslint-disable-next-line @typescript-eslint/no-empty-function
-				onFinish(){},
-				onError(error) {
-					console.warn(error);
-					interaction.followUp({ content: `Error: ${error.message}`, ephemeral: true }).catch(console.warn);
-				},
-			});
-			// Enqueue the track and reply a success message to the user
-			subscription.enqueue(track);
-
-			const msgEmbed = new MessageEmbed()
-			.setTitle(`InQueue`)
-			.setDescription(track.title)
-			.setColor('#6ffc03')
-			.setURL(track.url)
-			.setThumbnail(track.thumbnailUrl);
-
-			await interaction.reply({
-				embeds: [
-					msgEmbed
-				]
 			});
 		} catch (error) {
 			console.warn(error);
