@@ -8,7 +8,7 @@ import {
 	VoiceConnectionDisconnectReason,
 	VoiceConnectionStatus,
 } from '@discordjs/voice';
-import type { Track } from './track';
+import type { Track } from './track/track';
 import { promisify } from 'node:util';
 
 const wait = promisify(setTimeout);

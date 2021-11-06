@@ -1,20 +1,17 @@
-import { getInfo, videoInfo } from 'ytdl-core';
 import { AudioResource, createAudioResource, demuxProbe } from '@discordjs/voice';
-import ytdl from 'ytdl-core';
+import { Readable } from 'stream';
 
 /**
  * This is the data required to create a Track object.
  */
 export interface TrackData {
 	url: string;
-	info: videoInfo;
 	onStart: () => void;
 	onFinish: () => void;
 	onError: (error: Error) => void;
+	title: string;
+	thumbnailUrl: string;
 }
-
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
 
 /**
  * A Track represents information about a YouTube video (in this context) that can be added to a queue.
@@ -25,16 +22,18 @@ const noop = () => {};
  * we use tracks as they don't pre-emptively load the videos. Instead, once a Track is taken from the
  * queue, it is converted into an AudioResource just in time for playback.
  */
-export class Track implements TrackData {
+export abstract class Track implements TrackData {
 	public readonly url: string;
 	public readonly onStart: () => void;
 	public readonly onFinish: () => void;
 	public readonly onError: (error: Error) => void;
-	public info: videoInfo;
+	public readonly title: string;
+	public readonly thumbnailUrl: string;
 
-	private constructor({ url, info, onStart, onFinish, onError }: TrackData) {
+	constructor({ url, title, thumbnailUrl, onStart, onFinish, onError }: TrackData) {
 		this.url = url;
-		this.info = info;
+		this.title = title;
+		this.thumbnailUrl = thumbnailUrl
 		this.onStart = onStart;
 		this.onFinish = onFinish;
 		this.onError = onError;
@@ -45,29 +44,21 @@ export class Track implements TrackData {
 	 */
 	public createAudioResource(): Promise<AudioResource<Track>> {
 		return new Promise((resolve, reject) => {
-			const stream = ytdl(ytdl.getURLVideoID(this.url), {
-				filter: format => format.audioCodec === 'opus' && format.container === 'webm',
-				quality: 'highest',
-				highWaterMark: 32 * 1024 * 1024,
-			});
+			const stream = this.createStream();
 			demuxProbe(stream)
 				.then((probe) => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
 				.catch(error => reject(error));
 		});
-	}
+	};
 
 	/**
-	 * Creates a Track from a video URL and lifecycle callback methods.
-	 *
-	 * @param url The URL of the video
-	 * @param methods Lifecycle callbacks
-	 *
-	 * @returns The created Track
+	 * Helper creating wrapped methods to guarantee calling methods at least once
+	 * @param methods target raw methods, {'onStart', 'onFinish', 'onError'}
+	 * @returns wrapped methods with noop 
 	 */
-	public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>): Promise<Track> {
-		const info = await getInfo(url);
-
-		// The methods are wrapped so that we can ensure that they are only called once.
+	public static wrapMethods(methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>) : Pick<Track, 'onStart' | 'onFinish' | 'onError'>{
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
+		const noop = () => {};
 		const wrappedMethods = {
 			onStart() {
 				wrappedMethods.onStart = noop;
@@ -82,11 +73,26 @@ export class Track implements TrackData {
 				methods.onError(error);
 			},
 		};
-
-		return new Track({
-			url,
-			info,
-			...wrappedMethods,
-		});
+		return wrappedMethods;
 	}
+
+	/**
+	 * Needs implements
+	 * createStream
+	 * create stream: Readable from this.url and so on.
+	 */
+	public abstract createStream(): Readable; 
+
+	/**
+	 * Needs implements
+	 * from
+	 * create target class extended Track from url and methods.
+	 * @param url 
+	 * @param methods 
+	 * @returns 
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>): Promise<Track>{
+		return new Promise((_, reject) => reject('Not Implemented target URL.'));
+	};
 }

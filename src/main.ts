@@ -2,9 +2,10 @@ import { Client, ClientOptions, Interaction, GuildMember, Snowflake, MessageEmbe
 import config from './config/config.json';
 import { MusicSubscription } from './music/subscription';
 import { AudioPlayerStatus, AudioResource, entersState, joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice';
-import { Track } from './music/track';
+import { Track } from './music/track/track';
 import { generateDependencyReport } from '@discordjs/voice';
 import { Register } from './commands/register';
+import { Url2Track } from './music/url2track';
 
 console.log(generateDependencyReport());
 const options: ClientOptions = {
@@ -59,14 +60,15 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 		} catch (error) {
 			console.warn(error);
 			await interaction.followUp('Failed to join voice channel within 20 seconds, please try again later!');
+			interaction.deferred
 			return;
 		}
 
 		try {
 			// Attempt to create a Track from the user's video URL
-			const track = await Track.from(url, {
+			const track = await Url2Track.fromUrl(url, {
 				onStart(){
-					interaction.followUp({ content: `再生中: **${track.info.videoDetails.title}**` }).catch(console.warn);
+					interaction.followUp({ content: `再生中: **${track.title}**` }).catch(console.warn);
 				},
 				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				onFinish(){},
@@ -77,17 +79,13 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 			});
 			// Enqueue the track and reply a success message to the user
 			subscription.enqueue(track);
-			console.log(track.info)
 
 			const msgEmbed = new MessageEmbed()
 			.setTitle(`InQueue`)
-			.setDescription(track.info.videoDetails.title)
+			.setDescription(track.title)
 			.setColor('#6ffc03')
-			.setURL(track.info.videoDetails.video_url)
-
-			if (track.info.videoDetails.thumbnails[0]?.url) {
-				msgEmbed.setThumbnail(track.info.videoDetails.thumbnails[0]?.url);
-			}
+			.setURL(track.url)
+			.setThumbnail(track.thumbnailUrl);
 
 			await interaction.reply({
 				embeds: [
@@ -114,11 +112,11 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 			const current =
 				subscription.audioPlayer.state.status === AudioPlayerStatus.Idle
 					? `何も再生してないよ？`
-					: `再生中: **${(subscription.audioPlayer.state.resource as AudioResource<Track>).metadata.info.videoDetails.title}**`;
+					: `再生中: **${(subscription.audioPlayer.state.resource as AudioResource<Track>).metadata.title}**`;
 
 			const queue = subscription.queue
 				.slice(0, 5)
-				.map((track, index) => `${index + 1}) ${track.info.videoDetails.title}`)
+				.map((track, index) => `${index + 1}) ${track.title}`)
 				.join('\n');
 
 			await interaction.reply(`${current}\n\n${queue}`);
