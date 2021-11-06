@@ -42,9 +42,16 @@ export abstract class Track implements TrackData {
 	/**
 	 * Creates an AudioResource from this Track.
 	 */
-	public createAudioResource(): Promise<AudioResource<Track>> {
+	public async createAudioResource(): Promise<AudioResource<Track>> {
+		const promisableStream = this.createStream();
+		let stream: Readable;
+		// type guard
+		if (!(promisableStream instanceof Readable)) {
+			stream = await promisableStream;
+		} else {
+			stream = promisableStream;
+		}
 		return new Promise((resolve, reject) => {
-			const stream = this.createStream();
 			demuxProbe(stream)
 				.then((probe) => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
 				.catch(error => reject(error));
@@ -81,7 +88,7 @@ export abstract class Track implements TrackData {
 	 * createStream
 	 * create stream: Readable from this.url and so on.
 	 */
-	public abstract createStream(): Readable; 
+	public abstract createStream(): Readable | Promise<Readable>; 
 
 	/**
 	 * Needs implements
