@@ -31,6 +31,7 @@
     "sodium": "^3.0.2",
     "utf-8-validate": "^5.0.5",
     "ytdl-core": "^4.9.1",
+    "ytpl": "^2.2.3",
     "zlib-sync": "^0.1.7"
   },
   "devDependencies": {
