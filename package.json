@@ -5,9 +5,10 @@
   "scripts": {
     "build": "tsc",
     "start": "yarn build && node -r tsconfig-paths/register dist/main",
-    "lint-check": "prettier src/**/*.{ts}",
-    "lint": "prettier --write src/**/*.{ts}",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint-check": "prettier --check src",
+    "lint": "prettier --write src",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "make -C vendor/yt-dlp/ yt-dlp"
   },
   "repository": "git+https://github.com/ushitora-anqou/daidoquer3.git",
   "keywords": [

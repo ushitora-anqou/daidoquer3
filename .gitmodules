@@ -1,0 +1,3 @@
+[submodule "vendor/yt-dlp"]
+	path = vendor/yt-dlp
+	url = git@github.com:yt-dlp/yt-dlp.git
