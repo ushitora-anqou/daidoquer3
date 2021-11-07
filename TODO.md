@@ -1,8 +1,22 @@
-- target
-
-  - niconico
-  - soundCloud
-
-- fixme
-
-  - create stream in queue when pop coming near
+- better embed message
+  - queue
+  - skip
+  - pause
+  - resume
+  - shuffle
+  - leave
+  - onStart, onError
+- better operations to queue
+  - remove items
+  - next to
+  - view queue (with icon)
+- better README
+  - ASAP
+- (investigate) interaction.replied
+  - followUp fails sometimes?
+- better logging
+  - info
+  - error
+- targets
+  - streaming site that ytdlp can download
+  - get TrackInfo based on OGP or `<title></title>` and so on.
