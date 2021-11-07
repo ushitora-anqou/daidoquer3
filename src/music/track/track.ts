@@ -5,12 +5,12 @@ import { Readable } from 'stream';
  * This is the data required to create a Track object.
  */
 export interface TrackData {
-	url: string;
-	onStart: (title: string) => void;
-	onFinish: () => void;
-	onError: (error: Error) => void;
-	title: string;
-	thumbnailUrl: string;
+  url: string;
+  onStart: (title: string) => void;
+  onFinish: () => void;
+  onError: (error: Error) => void;
+  title?: string;
+  thumbnailUrl?: string;
 }
 
 /**
@@ -23,83 +23,87 @@ export interface TrackData {
  * queue, it is converted into an AudioResource just in time for playback.
  */
 export abstract class Track implements TrackData {
-	public readonly url: string;
-	public readonly onStart: (title: string) => void;
-	public readonly onFinish: () => void;
-	public readonly onError: (error: Error) => void;
-	public readonly title: string;
-	public readonly thumbnailUrl: string;
+  public readonly url: string;
+  public readonly onStart: (title?: string) => void;
+  public readonly onFinish: () => void;
+  public readonly onError: (error: Error) => void;
+  public readonly title?: string;
+  public readonly thumbnailUrl?: string;
 
-	constructor({ url, title, thumbnailUrl, onStart, onFinish, onError }: TrackData) {
-		this.url = url;
-		this.title = title;
-		this.thumbnailUrl = thumbnailUrl
-		this.onStart = onStart;
-		this.onFinish = onFinish;
-		this.onError = onError;
-	}
+  constructor({ url, title, thumbnailUrl, onStart, onFinish, onError }: TrackData) {
+    this.url = url;
+    this.title = title;
+    this.thumbnailUrl = thumbnailUrl;
+    this.onStart = onStart;
+    this.onFinish = onFinish;
+    this.onError = onError;
+  }
 
-	/**
-	 * Creates an AudioResource from this Track.
-	 */
-	public async createAudioResource(): Promise<AudioResource<Track>> {
-		const promisableStream = this.createStream();
-		let stream: Readable;
-		// type guard
-		if (!(promisableStream instanceof Readable)) {
-			stream = await promisableStream;
-		} else {
-			stream = promisableStream;
-		}
-		return new Promise((resolve, reject) => {
-			demuxProbe(stream)
-				.then((probe) => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
-				.catch(error => reject(error));
-		});
-	};
+  /**
+   * Creates an AudioResource from this Track.
+   */
+  public async createAudioResource(): Promise<AudioResource<Track>> {
+    const promisableStream = this.createStream();
+    let stream: Readable;
+    // type guard
+    if (!(promisableStream instanceof Readable)) {
+      await promisableStream.then((val) => (stream = val)).catch(console.warn);
+    } else {
+      stream = promisableStream;
+    }
+    return new Promise((resolve, reject) => {
+      demuxProbe(stream)
+        .then((probe) => {
+          resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type }));
+        })
+        .catch((error) => reject(error));
+    });
+  }
 
-	/**
-	 * Helper creating wrapped methods to guarantee calling methods at least once
-	 * @param methods target raw methods, {'onStart', 'onFinish', 'onError'}
-	 * @returns wrapped methods with noop 
-	 */
-	public static wrapMethods(methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>) : Pick<Track, 'onStart' | 'onFinish' | 'onError'>{
-		// eslint-disable-next-line @typescript-eslint/no-empty-function
-		const noop = () => {};
-		const wrappedMethods = {
-			onStart(title: string) {
-				wrappedMethods.onStart = noop;
-				methods.onStart(title);
-			},
-			onFinish() {
-				wrappedMethods.onFinish = noop;
-				methods.onFinish();
-			},
-			onError(error: Error) {
-				wrappedMethods.onError = noop;
-				methods.onError(error);
-			},
-		};
-		return wrappedMethods;
-	}
+  /**
+   * Helper creating wrapped methods to guarantee calling methods at least once
+   * @param methods target raw methods, {'onStart', 'onFinish', 'onError'}
+   * @returns wrapped methods with noop
+   */
+  public static wrapMethods(
+    methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>
+  ): Pick<Track, 'onStart' | 'onFinish' | 'onError'> {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const noop = () => {};
+    const wrappedMethods = {
+      onStart(title?: string) {
+        wrappedMethods.onStart = noop;
+        methods.onStart(title);
+      },
+      onFinish() {
+        wrappedMethods.onFinish = noop;
+        methods.onFinish();
+      },
+      onError(error: Error) {
+        wrappedMethods.onError = noop;
+        methods.onError(error);
+      },
+    };
+    return wrappedMethods;
+  }
 
-	/**
-	 * Needs implements
-	 * createStream
-	 * create stream: Readable from this.url and so on.
-	 */
-	public abstract createStream(): Readable | Promise<Readable>; 
+  /**
+   * Needs implements
+   * createStream
+   * create stream: Readable from this.url and so on.
+   */
+  public abstract createStream(): Readable | Promise<Readable>;
 
-	/**
-	 * Needs implements
-	 * from
-	 * create target class extended Track from url and methods.
-	 * @param url 
-	 * @param methods 
-	 * @returns 
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>): Promise<Track>{
-		return new Promise((_, reject) => reject('Not Implemented target URL.'));
-	};
+  /**
+   * Needs implements
+   * from
+   * create target class extended Track from url and methods.
+   * @param url
+   * @param methods
+   * @returns
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>): Promise<Track> {
+    return new Promise((_, reject) => reject('Not Implemented target URL.'));
+  }
 }
