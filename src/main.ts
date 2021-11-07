@@ -143,6 +143,24 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     }
   } else if (interaction.commandName === 'ping') {
     await usefulReplyOrFollowUp(interaction, { content: 'Pong!', ephemeral: true });
+  } else if (interaction.commandName === 'shuffle') {
+    if (!subscription) {
+      await usefulReplyOrFollowUp(interaction, 'なにもないよ');
+    } else {
+      // FIXME: 雑なout-placeで先頭を考慮しないshuffleをやめろ
+      const shuffle = (array: Track[]) => {
+        const out = Array.from(array);
+        for (let i = out.length - 1; i > 0; i--) {
+          const r = Math.floor(Math.random() * (i + 1));
+          const tmp = out[i] as Track;
+          out[i] = out[r] as Track;
+          out[r] = tmp;
+        }
+        return out;
+      };
+      subscription.queue = shuffle(subscription.queue);
+      await usefulReplyOrFollowUp(interaction, 'シャッフル！');
+    }
   } else {
     await usefulReplyOrFollowUp(interaction, '知らねーことをいうんじゃねえ。未実装だ');
   }

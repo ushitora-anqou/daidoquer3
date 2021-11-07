@@ -37,6 +37,10 @@ const definition: ApplicationCommandDataResolvable[] = [
     name: 'ping',
     description: 'pong?',
   },
+  {
+    name: 'shuffle',
+    description: 'キューの中身をシャッフル',
+  },
 ];
 
 export class Register {
