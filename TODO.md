@@ -10,8 +10,7 @@
   - remove items
   - next to
   - view queue (with icon)
-- (investigate) interaction.replied
-  - followUp fails sometimes?
+- leave after no one in VC
 - better logging
   - info
   - error
