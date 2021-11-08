@@ -23,6 +23,15 @@ export class MusicSubscription {
   public queue: Track[];
   public queueLock = false;
   public readyLock = false;
+  private _isLoop = false;
+
+  set isLoop(value: boolean) {
+    this._isLoop = value;
+  }
+
+  get isLoop(): boolean {
+    return this._isLoop;
+  }
 
   public constructor(voiceConnection: VoiceConnection) {
     this.voiceConnection = voiceConnection;
@@ -138,6 +147,10 @@ export class MusicSubscription {
     // Take the first item from the queue. This is guaranteed to exist due to the non-empty check above.
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const nextTrack = this.queue.shift()!; // queue.length != 0
+
+    if (this._isLoop) {
+      this.queue.push(nextTrack);
+    }
 
     try {
       console.log('queue is play');

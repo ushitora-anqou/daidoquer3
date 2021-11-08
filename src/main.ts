@@ -92,14 +92,14 @@ client.on('interactionCreate', async (interaction: Interaction) => {
         async onError(error) {
           console.warn(error);
           await interaction.channel?.send({
-            embeds: [coloredMsgEmbed('error').setDescription(`:error: ${error.message}`)],
+            embeds: [coloredMsgEmbed('error').setDescription(`:no_entry: ${error.message}`)],
           });
         },
       });
     } catch (error) {
       console.warn('url2enqueue error:', error);
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('error').setTitle(':error:').setDescription(error)],
+        embeds: [coloredMsgEmbed('error').setTitle(':no_entry:').setDescription(error)],
       });
     }
   } else if (interaction.commandName === 'skip') {
@@ -206,6 +206,28 @@ client.on('interactionCreate', async (interaction: Interaction) => {
       subscription.queue = shuffle(subscription.queue);
       await usefulReplyOrFollowUp(interaction, {
         embeds: [coloredMsgEmbed('info').setDescription(':twisted_rightwards_arrows: **Shuffled**')],
+      });
+    }
+  } else if (interaction.commandName === 'loop') {
+    if (subscription) {
+      subscription.isLoop = !subscription.isLoop;
+      // add playing track to last queue
+      // FIXME: make track directory
+      if (subscription.isLoop && subscription.audioPlayer.state.status !== AudioPlayerStatus.Idle) {
+        const current = subscription.audioPlayer.state.resource as AudioResource<Track>;
+        if (subscription.queue[subscription.queue.length - 1]?.url != current.metadata.url)
+          subscription.enqueue(current.metadata);
+      }
+      await usefulReplyOrFollowUp(interaction, {
+        embeds: [
+          coloredMsgEmbed('info').setDescription(
+            subscription.isLoop ? ':repeat: **loop**' : ':arrow_right: **no loop**'
+          ),
+        ],
+      });
+    } else {
+      await usefulReplyOrFollowUp(interaction, {
+        embeds: [coloredMsgEmbed('warn').setDescription(':warning: **Not Playing**')],
       });
     }
   } else {

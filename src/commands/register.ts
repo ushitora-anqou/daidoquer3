@@ -41,6 +41,10 @@ const definition: ApplicationCommandDataResolvable[] = [
     name: 'shuffle',
     description: 'キューの中身をシャッフル',
   },
+  {
+    name: 'loop',
+    description: 'キューをループ',
+  },
 ];
 
 export class Register {
