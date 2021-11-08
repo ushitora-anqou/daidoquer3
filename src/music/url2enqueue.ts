@@ -81,7 +81,7 @@ export class Url2Enqueue {
           tracks.push(track);
           msgEmbed
             .setTitle(`Enqueued`)
-            .setAuthor('Niconico', 'https://nicovideo.cdn.nimg.jp/uni/images/favicon/48.png?re')
+            .setAuthor('Niconico', 'https://nicovideo.cdn.nimg.jp/web/images/favicon/48.png')
             .setColor('#252525');
         } else {
           throw Error('Unknown URL');
