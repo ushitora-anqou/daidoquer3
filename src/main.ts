@@ -84,7 +84,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
       await Url2Enqueue.fromUrl(subscription, interaction, url, {
         async onStart(title: string) {
           await interaction.channel?.send({
-            embeds: [coloredMsgEmbed('info').setDescription(`:arrow_forward: ${title}`)],
+            embeds: [coloredMsgEmbed('info').setDescription(`:arrow_forward: **${title}**`)],
           });
         },
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -109,11 +109,11 @@ client.on('interactionCreate', async (interaction: Interaction) => {
       // will be loaded and played.
       subscription.audioPlayer.stop();
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('info').setDescription(`:fast_forward: Skipped`)],
+        embeds: [coloredMsgEmbed('info').setDescription(`:fast_forward: **Skipped**`)],
       });
     } else {
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('warn').setDescription(':warning: Not Playing')],
+        embeds: [coloredMsgEmbed('warn').setDescription(':warning: **Not Playing**')],
       });
     }
   } else if (interaction.commandName === 'queue') {
@@ -141,7 +141,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
       await usefulReplyOrFollowUp(interaction, { embeds: [msgEmbed] });
     } else {
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('warn').setDescription(':warning: Not Playing')],
+        embeds: [coloredMsgEmbed('warn').setDescription(':warning: **Not Playing**')],
         ephemeral: true,
       });
     }
@@ -149,12 +149,11 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     if (subscription) {
       subscription.audioPlayer.pause();
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('info').setDescription(':pause_button:')],
-        ephemeral: true,
+        embeds: [coloredMsgEmbed('info').setDescription(':pause_button: **Pause**')],
       });
     } else {
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('warn').setDescription(':warning: Not Playing')],
+        embeds: [coloredMsgEmbed('warn').setDescription(':warning: **Not Playing**')],
         ephemeral: true,
       });
     }
@@ -162,12 +161,11 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     if (subscription) {
       subscription.audioPlayer.unpause();
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('info').setDescription(':play_pause:')],
-        ephemeral: true,
+        embeds: [coloredMsgEmbed('info').setDescription(':play_pause: **Resume**')],
       });
     } else {
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('warn').setDescription(':warning: Not Playing')],
+        embeds: [coloredMsgEmbed('warn').setDescription(':warning: **Not Playing**')],
         ephemeral: true,
       });
     }
@@ -176,12 +174,12 @@ client.on('interactionCreate', async (interaction: Interaction) => {
       subscription.voiceConnection.destroy();
       guild2subscriptions.delete(interaction.guildId);
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('info').setDescription(':wave:')],
+        embeds: [coloredMsgEmbed('info').setDescription(':wave: **Graceful leave**')],
         ephemeral: true,
       });
     } else {
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('warn').setDescription(':warning: Not Playing')],
+        embeds: [coloredMsgEmbed('warn').setDescription(':warning: **Not Playing**')],
         ephemeral: true,
       });
     }
@@ -190,7 +188,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
   } else if (interaction.commandName === 'shuffle') {
     if (!subscription) {
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('warn').setDescription(':warning: Not Playing')],
+        embeds: [coloredMsgEmbed('warn').setDescription(':warning: **Not Playing**')],
         ephemeral: true,
       });
     } else {
@@ -207,8 +205,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
       };
       subscription.queue = shuffle(subscription.queue);
       await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('info').setDescription(':twisted_rightwards_arrows:')],
-        ephemeral: true,
+        embeds: [coloredMsgEmbed('info').setDescription(':twisted_rightwards_arrows: **Shuffled**')],
       });
     }
   } else {
