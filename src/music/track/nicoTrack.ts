@@ -81,7 +81,7 @@ export class NicoTrack extends Track {
         });
         ytdlpProcess.on('error', (e) => {
           ffmpegProcess.stdin.end();
-          reject(e)
+          reject(e);
         });
         ytdlpProcess.on('close', () => {
           ffmpegProcess.stdin.end();

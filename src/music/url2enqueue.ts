@@ -31,7 +31,7 @@ export class Url2Enqueue {
 
       msgEmbed
         .setTitle(`${list.items.length} items in playlist are enqueued`)
-        .setAuthor('Youtube Playlist')
+        .setAuthor('Youtube Playlist', 'https://www.youtube.com/yts/img/favicon_96-vflW9Ec0w.png')
         .setColor('#FF0000');
 
       list.items.forEach((item) => {
@@ -49,7 +49,10 @@ export class Url2Enqueue {
       const track = await YtTrack.from(url, methods);
       representiveTrack = { title: track.title, thumbnailUrl: track.thumbnailUrl };
       tracks.push(track);
-      msgEmbed.setTitle(`Enqueued`).setAuthor('Youtube').setColor('#FF0000');
+      msgEmbed
+        .setTitle(`Enqueued`)
+        .setAuthor('Youtube', 'https://www.youtube.com/yts/img/favicon_96-vflW9Ec0w.png')
+        .setColor('#FF0000');
     } else {
       // URL validate
       try {
@@ -76,7 +79,10 @@ export class Url2Enqueue {
           const track = await NicoTrack.from(url, methods);
           representiveTrack = { title: track.title, thumbnailUrl: track.thumbnailUrl };
           tracks.push(track);
-          msgEmbed.setTitle(`Enqueued`).setAuthor('Niconico').setColor('#252525');
+          msgEmbed
+            .setTitle(`Enqueued`)
+            .setAuthor('Niconico', 'https://nicovideo.cdn.nimg.jp/uni/images/favicon/48.png?re')
+            .setColor('#252525');
         } else {
           throw Error('Unknown URL');
         }
