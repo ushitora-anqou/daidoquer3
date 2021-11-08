@@ -1,7 +1,7 @@
 import { CacheType, CommandInteraction, InteractionReplyOptions, MessagePayload } from 'discord.js';
 
 export async function usefulReplyOrFollowUp(
-  interaction: CommandInteraction<CacheType> & {repliedSoftLock?: boolean},
+  interaction: CommandInteraction<CacheType> & { repliedSoftLock?: boolean },
   options: string | MessagePayload | InteractionReplyOptions
 ): Promise<void> {
   let tryingReply = false;
