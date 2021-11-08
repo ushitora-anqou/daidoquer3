@@ -10,8 +10,6 @@
   - remove items
   - next to
   - view queue (with icon)
-- better README
-  - ASAP
 - (investigate) interaction.replied
   - followUp fails sometimes?
 - better logging
