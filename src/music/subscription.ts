@@ -145,9 +145,12 @@ export class MusicSubscription {
   }
 
   public skip(): void {
-    this.audioPlayer.stop(true);
-    this.queueLock = false;
-    void this.processQueue();
+    if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
+      this.queueLock = false;
+      void this.processQueue();
+    } else {
+      this.audioPlayer.stop(true);
+    }
   }
 
   /**
