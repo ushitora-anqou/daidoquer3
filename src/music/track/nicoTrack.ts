@@ -88,6 +88,7 @@ export class NicoTrack extends Track {
         });
         // ffmpeg Link streams
         ffmpegProcess.stdio[1].on('data', (chunk) => {
+          console.log('audio...')
           audio.write(chunk);
         });
         ffmpegProcess.on('error', (e) => {

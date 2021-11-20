@@ -12,6 +12,7 @@ import type { Track } from './track/track';
 import { promisify } from 'node:util';
 
 const wait = promisify(setTimeout);
+const TIMEOUT_MS = 1000 * 60 * 10;
 
 /**
  * A MusicSubscription exists for each active VoiceConnection. Each subscription has its own audio player and queue,
@@ -24,6 +25,7 @@ export class MusicSubscription {
   public queueLock = false;
   public readyLock = false;
   private _isLoop = false;
+  private _countDown: NodeJS.Timer;
 
   set isLoop(value: boolean) {
     this._isLoop = value;
@@ -39,6 +41,7 @@ export class MusicSubscription {
     this.queue = [];
 
     this.voiceConnection.on('stateChange', async (_: never, newState) => {
+      console.log('hooked', newState.status);
       if (newState.status === VoiceConnectionStatus.Disconnected) {
         if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
           /**
@@ -52,7 +55,9 @@ export class MusicSubscription {
             await entersState(this.voiceConnection, VoiceConnectionStatus.Connecting, 5_000);
             // Probably moved voice channel
           } catch {
-            this.voiceConnection.destroy();
+            if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) {
+              this.voiceConnection.destroy();
+            }
             // Probably removed from voice channel
           }
         } else if (this.voiceConnection.rejoinAttempts < 5) {
@@ -65,7 +70,9 @@ export class MusicSubscription {
           /**
            * The disconnect in this case may be recoverable, but we have no more remaining attempts - destroy.
            */
-          this.voiceConnection.destroy();
+          if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) {
+            this.voiceConnection.destroy();
+          }
         }
       } else if (newState.status === VoiceConnectionStatus.Destroyed) {
         /**
@@ -99,11 +106,15 @@ export class MusicSubscription {
         // If the Idle state is entered from a non-Idle state, it means that an audio resource has finished playing.
         // The queue is then processed to start playing the next track, if one is available.
         console.log('finish');
+        this._countDown = setTimeout(() => {
+          if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed) this.voiceConnection.destroy()
+        }, TIMEOUT_MS);
         (oldState.resource as AudioResource<Track>).metadata.onFinish();
         void this.processQueue();
       } else if (newState.status === AudioPlayerStatus.Playing) {
         // If the Playing state has been entered, then a new track has started playback.
         console.log('start');
+        clearTimeout(this._countDown);
         const resource = newState.resource as AudioResource<Track>;
         resource.metadata.onStart(resource.metadata.title);
       }
@@ -133,6 +144,12 @@ export class MusicSubscription {
     this.audioPlayer.stop(true);
   }
 
+  public skip(): void {
+    this.audioPlayer.stop(true);
+    this.queueLock = false;
+    void this.processQueue();
+  }
+
   /**
    * Attempts to play a Track from the queue.
    */
@@ -155,8 +172,10 @@ export class MusicSubscription {
     try {
       console.log('queue is play');
       // Attempt to convert the Track into an AudioResource (i.e. start streaming the video)
+      // FIXME: interrupt below await when skipped
       const resource = await nextTrack.createAudioResource();
-      this.audioPlayer.play(resource);
+      // FIXME: this ad-hoc skipping 
+      if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) this.audioPlayer.play(resource);
       this.queueLock = false;
     } catch (error) {
       console.log('queue is error');

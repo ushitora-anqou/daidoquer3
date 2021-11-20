@@ -9,3 +9,5 @@ src/config/config.json
 src/config/config.*.json
 # yarn error
 yarn-error.log
+# webstorm
+.idea

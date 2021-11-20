@@ -39,7 +39,11 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 
     // If a connection to the guild doesn't already exist and the user is in a voice channel, join that channel
     // and create a subscription.
-    if (!subscription) {
+    if (subscription?.voiceConnection.state.status === VoiceConnectionStatus.Disconnected) {
+      // if vc.status is disconnected, immediately destroy it. 
+      subscription.voiceConnection.destroy();
+    }
+    if (!subscription || subscription.voiceConnection.state.status === VoiceConnectionStatus.Destroyed) {
       if (interaction.member instanceof GuildMember && interaction.member.voice.channel) {
         const channel = interaction.member.voice.channel;
         subscription = new MusicSubscription(
@@ -98,16 +102,18 @@ client.on('interactionCreate', async (interaction: Interaction) => {
       });
     } catch (error) {
       console.warn('url2enqueue error:', error);
-      await usefulReplyOrFollowUp(interaction, {
-        embeds: [coloredMsgEmbed('error').setTitle(':no_entry:').setDescription(error)],
-      });
+      if (error instanceof Error) {
+        await usefulReplyOrFollowUp(interaction, {
+          embeds: [coloredMsgEmbed('error').setDescription(`:no_entry: ${error.message}`)],
+        });
+      }
     }
   } else if (interaction.commandName === 'skip') {
     if (subscription) {
       // Calling .stop() on an AudioPlayer causes it to transition into the Idle state. Because of a state transition
       // listener defined in music/subscription.ts, transitions into the Idle state mean the next track from the queue
       // will be loaded and played.
-      subscription.audioPlayer.stop();
+      subscription.skip();
       await usefulReplyOrFollowUp(interaction, {
         embeds: [coloredMsgEmbed('info').setDescription(`:fast_forward: **Skipped**`)],
       });
