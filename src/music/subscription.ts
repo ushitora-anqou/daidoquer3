@@ -40,9 +40,8 @@ export class MusicSubscription {
     this.audioPlayer = createAudioPlayer();
     this.queue = [];
 
-    this.voiceConnection.on('stateChange', async (_: never, newState) => {
-      console.log('hooked', newState.status);
-      if (newState.status === VoiceConnectionStatus.Disconnected) {
+    this.voiceConnection.on(VoiceConnectionStatus.Disconnected, (_, newState) => {
+      (async () => {
         if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
           /**
            * If the WebSocket closed with a 4014 code, this means that we should not manually attempt to reconnect,
@@ -74,15 +73,19 @@ export class MusicSubscription {
             this.voiceConnection.destroy();
           }
         }
-      } else if (newState.status === VoiceConnectionStatus.Destroyed) {
-        /**
-         * Once destroyed, stop the subscription.
-         */
-        this.stop();
-      } else if (
-        !this.readyLock &&
-        (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)
-      ) {
+      });
+    });
+
+    this.voiceConnection.on(VoiceConnectionStatus.Destroyed, () => {
+      /**
+       * Once destroyed, stop the subscription.
+       */
+      this.stop();
+    });
+
+    const tryReady = async () => {
+      // FIXME: lock for ready, but is this enough?
+      if (!this.readyLock) {
         /**
          * In the Signalling or Connecting states, we set a 20 second time limit for the connection to become ready
          * before destroying the voice connection. This stops the voice connection permanently existing in one of these
@@ -97,7 +100,10 @@ export class MusicSubscription {
           this.readyLock = false;
         }
       }
-    });
+    }
+
+    this.voiceConnection.on(VoiceConnectionStatus.Connecting, () => (async () => {await tryReady()}));
+    this.voiceConnection.on(VoiceConnectionStatus.Signalling, () => (async () => {await tryReady()}));
 
     // Configure audio player
     this.audioPlayer.on('stateChange', (oldState, newState) => {

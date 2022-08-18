@@ -17,7 +17,7 @@ import { coloredMsgEmbed } from './discord/msg';
 
 console.log(generateDependencyReport());
 const options: ClientOptions = {
-  intents: ['GUILD_VOICE_STATES', 'GUILD_MESSAGES', 'GUILDS'],
+  intents: ['GuildVoiceStates', 'GuildMessages', 'Guilds'],
 };
 const client = new Client(options);
 

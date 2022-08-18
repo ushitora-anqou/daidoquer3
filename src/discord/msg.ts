@@ -1,4 +1,4 @@
-import { HexColorString, MessageEmbed } from 'discord.js';
+import { EmbedBuilder, HexColorString } from 'discord.js';
 
 interface MsgColor {
   info: HexColorString;
@@ -13,6 +13,6 @@ const color: MsgColor = {
   error: '#dc3545',
 };
 
-export const coloredMsgEmbed = (type: keyof MsgColor): MessageEmbed => {
-  return new MessageEmbed().setColor(color[type]);
+export const coloredMsgEmbed = (type: keyof MsgColor): EmbedBuilder => {
+  return new EmbedBuilder().setColor(color[type]);
 };

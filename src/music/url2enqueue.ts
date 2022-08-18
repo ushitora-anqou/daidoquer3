@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction, MessageEmbed } from 'discord.js';
+import { CacheType, CommandInteraction, EmbedBuilder } from 'discord.js';
 import ytdl from 'ytdl-core';
 import ytpl from 'ytpl';
 import { MusicSubscription } from './subscription';
@@ -18,7 +18,7 @@ export class Url2Enqueue {
     methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>
   ): Promise<void> {
     const tracks: Track[] = [];
-    const msgEmbed = new MessageEmbed();
+    const msgEmbed = new EmbedBuilder();
     let representiveTrack: Pick<Track, 'title' | 'thumbnailUrl'> | undefined;
 
     // detect URL
@@ -31,7 +31,7 @@ export class Url2Enqueue {
 
       msgEmbed
         .setTitle(`${list.items.length} items in playlist are enqueued`)
-        .setAuthor('Youtube Playlist', 'https://www.youtube.com/yts/img/favicon_96-vflW9Ec0w.png')
+        .setAuthor({name:'Youtube Playlist', iconURL: 'https://www.youtube.com/yts/img/favicon_96-vflW9Ec0w.png'})
         .setColor('#FF0000');
 
       list.items.forEach((item) => {
@@ -51,7 +51,7 @@ export class Url2Enqueue {
       tracks.push(track);
       msgEmbed
         .setTitle(`Enqueued`)
-        .setAuthor('Youtube', 'https://www.youtube.com/yts/img/favicon_96-vflW9Ec0w.png')
+        .setAuthor({name: 'Youtube', iconURL: 'https://www.youtube.com/yts/img/favicon_96-vflW9Ec0w.png'})
         .setColor('#FF0000');
     } else {
       // URL validate
@@ -69,10 +69,10 @@ export class Url2Enqueue {
           tracks.push(track);
           msgEmbed
             .setTitle(`Enqueued`)
-            .setAuthor(
-              'SoundCloud',
-              'https://developers.soundcloud.com/assets/logo_big_white-65c2b096da68dd533db18b9f07d14054.png'
-            )
+            .setAuthor({
+              name: 'SoundCloud',
+              iconURL: 'https://developers.soundcloud.com/assets/logo_big_white-65c2b096da68dd533db18b9f07d14054.png'
+            })
             .setColor('#FE5000');
         } else if (validatedUrl.hostname === 'www.nicovideo.jp') {
           console.log(url, 'is NicoVideo.');
@@ -81,7 +81,7 @@ export class Url2Enqueue {
           tracks.push(track);
           msgEmbed
             .setTitle(`Enqueued`)
-            .setAuthor('Niconico', 'https://nicovideo.cdn.nimg.jp/web/images/favicon/48.png')
+            .setAuthor({name: 'Niconico', iconURL: 'https://nicovideo.cdn.nimg.jp/web/images/favicon/48.png'})
             .setColor('#252525');
         } else {
           throw Error('Unknown URL');

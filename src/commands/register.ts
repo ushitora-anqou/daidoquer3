@@ -7,7 +7,8 @@ const definition: ApplicationCommandDataResolvable[] = [
     options: [
       {
         name: 'song',
-        type: 'STRING' as const,
+        /* ApplicationCommandOptionType is not type-safe because of unsafety enum */
+        type: 3,
         description: 'URL',
         required: true,
       },
