@@ -37,7 +37,9 @@ export class NicoTrack extends Track {
             ],
           }
         );
+        // FIXME: try to prism
         const ffmpegProcess = cp.spawn(
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           ffmpeg,
           [
             // Remove ffmpeg's console spamming
