@@ -86,18 +86,20 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     try {
       // Attempt to enqueue a Track from URL.
       await Url2Enqueue.fromUrl(subscription, interaction, url, {
-        async onStart(title: string) {
-          await interaction.channel?.send({
-            embeds: [coloredMsgEmbed('info').setDescription(`:arrow_forward: **${title}**`)],
-          });
+        onStart(title: string) { void (async () => {
+            await interaction.channel?.send({
+              embeds: [coloredMsgEmbed('info').setDescription(`:arrow_forward: **${title}**`)],
+            });
+          })();
         },
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         onFinish() {},
-        async onError(error) {
-          console.warn(error);
-          await interaction.channel?.send({
-            embeds: [coloredMsgEmbed('error').setDescription(`:no_entry: ${error.message}`)],
-          });
+        onError(error) { void (async () => {
+            console.warn(error);
+            await interaction.channel?.send({
+              embeds: [coloredMsgEmbed('error').setDescription(`:no_entry: ${error.message}`)],
+            });
+          })(); 
         },
       });
     } catch (error) {
