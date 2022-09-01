@@ -1,4 +1,4 @@
-import { ApplicationCommandDataResolvable, Client } from 'discord.js';
+import { ApplicationCommandDataResolvable, ApplicationCommandOptionType, Client } from 'discord.js';
 
 const definition: ApplicationCommandDataResolvable[] = [
   {
@@ -7,8 +7,7 @@ const definition: ApplicationCommandDataResolvable[] = [
     options: [
       {
         name: 'song',
-        /* ApplicationCommandOptionType is not type-safe because of unsafety enum */
-        type: 3,
+        type: ApplicationCommandOptionType.String,
         description: 'URL',
         required: true,
       },
