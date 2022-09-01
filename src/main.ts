@@ -8,7 +8,7 @@ import {
   joinVoiceChannel,
   VoiceConnectionStatus,
 } from '@discordjs/voice';
-import { Track } from './music/track/track';
+import { RETRY_TIME, Track } from './music/track/track';
 import { generateDependencyReport } from '@discordjs/voice';
 import { Register } from './commands/register';
 import { Url2Enqueue } from './music/url2enqueue';
@@ -86,7 +86,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     try {
       // Attempt to enqueue a Track from URL.
       await Url2Enqueue.fromUrl(subscription, interaction, url, {
-        onStart(title: string) { void (async () => {
+        onStart(title: string) {void (async () => {
             await interaction.channel?.send({
               embeds: [coloredMsgEmbed('info').setDescription(`:arrow_forward: **${title}**`)],
             });
@@ -94,13 +94,19 @@ client.on('interactionCreate', async (interaction: Interaction) => {
         },
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         onFinish() {},
-        onError(error) { void (async () => {
+        onError(error) {void (async () => {
             console.warn(error);
             await interaction.channel?.send({
               embeds: [coloredMsgEmbed('error').setDescription(`:no_entry: ${error.message}`)],
             });
           })(); 
         },
+        onRetry(time: number) {void (async () => {
+          await interaction.channel?.send({
+            embeds: [coloredMsgEmbed('warn').setDescription(`:arrows_counterclockwise: ${time}/${RETRY_TIME}`)],
+          });
+        })(); 
+        }
       });
     } catch (error) {
       console.warn('url2enqueue error:', error);

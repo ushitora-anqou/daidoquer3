@@ -8,15 +8,15 @@ import Soundcloud from 'soundcloud.ts';
 export class ScTrack extends Track {
   static client = new Soundcloud('');
 
-  constructor({ url, title, thumbnailUrl, onStart, onFinish, onError }: TrackData) {
-    super({ url, title, thumbnailUrl, onStart, onFinish, onError });
+  constructor({ url, title, thumbnailUrl, onStart, onFinish, onError, onRetry }: TrackData) {
+    super({ url, title, thumbnailUrl, onStart, onFinish, onError, onRetry });
   }
 
   public async createStream(): Promise<Readable> {
     return new Readable().wrap(await ScTrack.client.util.streamTrack(this.url));
   }
 
-  public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>): Promise<ScTrack> {
+  public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'| 'onRetry'>): Promise<ScTrack> {
     let title: string | undefined;
     let thumbnailUrl: string | undefined;
     await ScTrack.client.tracks.getV2(url).then((info) => {

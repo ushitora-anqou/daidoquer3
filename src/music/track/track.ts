@@ -1,6 +1,8 @@
 import { AudioResource, createAudioResource, demuxProbe } from '@discordjs/voice';
 import { Readable } from 'stream';
 
+export const RETRY_TIME=3;
+
 /**
  * This is the data required to create a Track object.
  */
@@ -9,6 +11,7 @@ export interface TrackData {
   onStart: (title: string) => void;
   onFinish: () => void;
   onError: (error: Error) => void;
+  onRetry: (time: number) => void;
   title?: string;
   thumbnailUrl?: string;
 }
@@ -27,37 +30,38 @@ export abstract class Track implements TrackData {
   public readonly onStart: (title?: string) => void;
   public readonly onFinish: () => void;
   public readonly onError: (error: Error) => void;
+  public readonly onRetry: (time: number) => void;
   public readonly title?: string;
   public readonly thumbnailUrl?: string;
+  private _retryTime: number;
 
-  constructor({ url, title, thumbnailUrl, onStart, onFinish, onError }: TrackData) {
+  constructor({ url, title, thumbnailUrl, onStart, onFinish, onError, onRetry }: TrackData) {
     this.url = url;
     this.title = title;
     this.thumbnailUrl = thumbnailUrl;
     this.onStart = onStart;
     this.onFinish = onFinish;
     this.onError = onError;
+    this.onRetry = onRetry;
+    this._retryTime = RETRY_TIME;
   }
 
   /**
    * Creates an AudioResource from this Track.
    */
-  public async createAudioResource(): Promise<AudioResource<Track>> {
-    const promisableStream = this.createStream();
-    let stream: Readable;
-    // type guard
-    if (!(promisableStream instanceof Readable)) {
-      await promisableStream.then((val) => (stream = val)).catch(console.warn);
-    } else {
-      stream = promisableStream;
-    }
+  public createAudioResource(): Promise<AudioResource<Track>> {
+    // 
     return new Promise((resolve, reject) => {
-      demuxProbe(stream)
+      this.createStream()
+      .then(stream => {
+        demuxProbe(stream)
         .then((probe) => {
           resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type }));
         })
         .catch((error) => reject(error));
-    });
+      })
+      .catch((error) => reject(error));
+    })
   }
 
   /**
@@ -66,8 +70,8 @@ export abstract class Track implements TrackData {
    * @returns wrapped methods with noop
    */
   public static wrapMethods(
-    methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>
-  ): Pick<Track, 'onStart' | 'onFinish' | 'onError'> {
+    methods: Pick<Track, 'onStart' | 'onFinish' | 'onError' | 'onRetry'>
+  ): Pick<Track, 'onStart' | 'onFinish' | 'onError'| 'onRetry'> {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     const noop = () => {};
     const wrappedMethods = {
@@ -83,6 +87,10 @@ export abstract class Track implements TrackData {
         wrappedMethods.onError = noop;
         methods.onError(error);
       },
+      onRetry(time: number) {
+        wrappedMethods.onRetry = noop;
+        methods.onRetry(time);
+      }
     };
     return wrappedMethods;
   }
@@ -90,9 +98,9 @@ export abstract class Track implements TrackData {
   /**
    * Needs implements
    * createStream
-   * create stream: Readable from this.url and so on.
+   * create stream: Promise<Readable> from this.url and so on.
    */
-  public abstract createStream(): Readable | Promise<Readable>;
+  public abstract createStream(): Promise<Readable>;
 
   /**
    * Needs implements
@@ -103,7 +111,13 @@ export abstract class Track implements TrackData {
    * @returns
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>): Promise<Track> {
+  public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError' | 'onRetry'>): Promise<Track> {
     return new Promise((_, reject) => reject('Not Implemented target URL.'));
   }
+
+  public decRetryTime = () => {
+    this._retryTime = this._retryTime - 1;
+  }
+
+  get retryTime() {return this._retryTime};
 }

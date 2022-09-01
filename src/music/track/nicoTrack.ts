@@ -11,8 +11,8 @@ import * as cp from 'child_process';
  * Track implements for Niconico.
  */
 export class NicoTrack extends Track {
-  constructor({ url, title, thumbnailUrl, onStart, onFinish, onError }: TrackData) {
-    super({ url, title, thumbnailUrl, onStart, onFinish, onError });
+  constructor({ url, title, thumbnailUrl, onStart, onFinish, onError, onRetry }: TrackData) {
+    super({ url, title, thumbnailUrl, onStart, onFinish, onError, onRetry });
   }
 
   public static url2VideoId(url: string): string {
@@ -111,7 +111,7 @@ export class NicoTrack extends Track {
     });
   }
 
-  public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>): Promise<NicoTrack> {
+  public static async from(url: string, methods: Pick<Track, 'onStart' | 'onFinish' | 'onError' | 'onRetry'>): Promise<NicoTrack> {
     let title: string | undefined;
     let thumbnailUrl: string | undefined;
     await getThumbInfo(NicoTrack.url2VideoId(url)).then((info) => {

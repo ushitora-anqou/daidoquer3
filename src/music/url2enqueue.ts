@@ -15,7 +15,7 @@ export class Url2Enqueue {
     subscription: MusicSubscription,
     interaction: CommandInteraction<CacheType>,
     url: string,
-    methods: Pick<Track, 'onStart' | 'onFinish' | 'onError'>
+    methods: Pick<Track, 'onStart' | 'onFinish' | 'onError' | 'onRetry'>
   ): Promise<void> {
     const tracks: Track[] = [];
     const msgEmbed = new EmbedBuilder();
@@ -84,6 +84,7 @@ export class Url2Enqueue {
             .setAuthor({name: 'Niconico', iconURL: 'https://nicovideo.cdn.nimg.jp/web/images/favicon/48.png'})
             .setColor('#252525');
         } else {
+          // FIXME: try to yt-dlp
           throw Error('Unknown URL');
         }
       } catch (e) {
