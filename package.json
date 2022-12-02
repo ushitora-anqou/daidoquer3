@@ -34,7 +34,7 @@
     "sodium": "^3.0.2",
     "soundcloud.ts": "^0.4.5",
     "utf-8-validate": "^5.0.5",
-    "ytdl-core": "^4.9.1",
+    "ytdl-core": "^4.11.2",
     "ytpl": "^2.2.3",
     "zlib-sync": "^0.1.7"
   },
